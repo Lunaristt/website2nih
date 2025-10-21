@@ -125,7 +125,7 @@
                         <label for="Jumlah" class="form-label">Jumlah</label>
                         <input type="number" name="Jumlah" id="Jumlah" class="form-control" min="1" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Tambah Barang</button>
+                    <button type="submit" class="btn btn-primary">Tambah tai</button>
                 </form>
 
                 <div class="d-flex justify-content-between align-items-center mt-4">
