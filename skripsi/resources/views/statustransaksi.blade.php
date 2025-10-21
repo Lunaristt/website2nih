@@ -35,7 +35,7 @@
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
-                                <th>ID Transaksi</th>
+                                <!-- <th>ID Transaksi</th> -->
                                 <th>Nama Pelanggan</th>
                                 <th>Nomor Telepon</th>
                                 <th>Harga Keseluruhan</th>
@@ -47,7 +47,7 @@
                         <tbody>
                             @forelse($penjualan as $p)
                                 <tr>
-                                    <td>{{ $p->ID_Penjualan }}</td>
+                                    <!-- <td>{{ $p->ID_Penjualan }}</td> -->
                                     <td>{{ $p->Nama_Pelanggan }}</td>
                                     <td>{{ $p->No_Telp }}</td>
                                     <td>Rp. {{ number_format($p->Harga_Keseluruhan, 0, ',', '.') }}</td>

@@ -4,63 +4,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Transaksi</title>
+    <title>Transaksi Baru - Toko Sumber Rejeki</title>
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Select2 (dropdown + search + add new) -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .select2-container .select2-selection--single {
+            height: 38px;
+            padding: 6px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            right: 10px;
+        }
+    </style>
+
     @vite(['resources/css/style.css', 'resources/js/app.js'])
 </head>
 
 <body>
-    <!-- Navbar -->
     @include('layouts.navbar')
-
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
             @include('layouts.sidebar')
 
-            <!-- Content -->
             <div class="col-md-10 p-4">
-
-                <!-- Judul Transaksi -->
                 <h4 class="mb-4">Transaksi Baru (ID: {{ $penjualan->ID_Penjualan }})</h4>
 
-                <!-- Informasi Pelanggan -->
+                {{-- 🔹 Informasi Pelanggan --}}
                 <div class="row mb-4">
-                    <div class="col">
+                    <div class="col-md-4">
                         <h6 class="fw-bold">Nama Pelanggan</h6>
-                        <select id="namaPelanggan" class="form-control">
-                            <option value="">-- Pilih Pelanggan --</option>
+                        <select id="namaPelanggan" class="form-control" style="width: 100%;">
+                            <option value="">-- Pilih atau Ketik Pelanggan --</option>
                             @foreach($pelanggan as $plg)
-                                <option value="{{ $plg->No_Telp }}" data-nama="{{ $plg->Nama_Pelanggan }}"
+                                <option value="{{ $plg->Nama_Pelanggan }}" data-telp="{{ $plg->No_Telp }}"
                                     data-alamat="{{ $plg->Alamat }}">
                                     {{ $plg->Nama_Pelanggan }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col">
+
+                    <div class="col-md-4">
                         <h6 class="fw-bold">Nomor Telepon</h6>
-                        <input type="text" id="noTelp" class="form-control" readonly>
-                        <!-- Hidden supaya ikut terkirim -->
-                        <input type="hidden" name="No_Telp" id="hiddenNoTelp">
+                        <input type="text" id="noTelp" name="No_Telp" class="form-control"
+                            placeholder="Nomor telepon...">
                     </div>
-                </div>
 
-                <!-- Alamat -->
-                <div class="row mb-4">
-                    <div class="col">
+                    <div class="col-md-4">
                         <h6 class="fw-bold">Alamat</h6>
-                        <input type="text" id="alamatPelanggan" class="form-control" readonly>
+                        <input type="text" id="alamatPelanggan" name="Alamat" class="form-control"
+                            placeholder="Alamat pelanggan...">
                     </div>
                 </div>
 
-                <!-- Tabel Barang -->
-                <table class="table table-borderless align-middle">
-                    <thead>
+                {{-- 🔹 Tabel Barang --}}
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
                         <tr>
                             <th>Nama Barang</th>
                             <th>Deskripsi</th>
-                            <th>Jumlah Barang</th>
+                            <th>Jumlah</th>
                             <th>Harga Satuan</th>
                             <th>Total Harga</th>
                             <th>Aksi</th>
@@ -91,7 +107,7 @@
                     </tbody>
                 </table>
 
-                <!-- Form Tambah Barang -->
+                {{-- 🔹 Form Tambah Barang --}}
                 <form id="formAddItem" action="{{ route('transaksi.addItem') }}" method="POST">
                     @csrf
                     <div class="mb-3">
@@ -112,15 +128,14 @@
                     <button type="submit" class="btn btn-primary">Tambah Barang</button>
                 </form>
 
-                <!-- Total -->
                 <div class="d-flex justify-content-between align-items-center mt-4">
                     <h6 id="grandTotal" class="fw-bold">
                         Total: Rp {{ number_format($penjualan->Harga_Keseluruhan, 0, ',', '.') }}
                     </h6>
                 </div>
 
+                {{-- 🔹 Tombol --}}
                 <div class="d-flex justify-content-end mt-3">
-                    {{-- Tombol Batalkan --}}
                     <form action="{{ route('transaksi.cancel') }}" method="POST" class="me-2">
                         @csrf
                         <button type="submit" class="btn btn-danger"
@@ -129,11 +144,11 @@
                         </button>
                     </form>
 
-                    {{-- Tombol Selesaikan --}}
                     <form action="{{ route('transaksi.checkout') }}" method="POST" id="checkoutForm">
                         @csrf
-                        <!-- hidden No_Telp untuk dikirim -->
-                        <input type="hidden" name="No_Telp" id="checkoutNoTelp">
+                        <input type="hidden" name="Nama_Pelanggan" id="checkoutNama">
+                        <input type="hidden" name="No_Telp" id="checkoutTelp">
+                        <input type="hidden" name="Alamat" id="checkoutAlamat">
                         <button type="submit" class="btn btn-success" @if($transaksi->count() == 0) disabled @endif>
                             Selesaikan Pesanan
                         </button>
@@ -143,41 +158,80 @@
         </div>
     </div>
 
-    <!-- Script -->
+    {{-- ===================================================== --}}
     <script>
-        // Autofill pelanggan
-        document.getElementById('namaPelanggan').addEventListener('change', function () {
-            let selected = this.options[this.selectedIndex];
-            let noTelp = selected.value;
-            let alamat = selected.getAttribute('data-alamat') ?? '';
+        $(document).ready(function () {
+            // ====================================================
+            // 🔹 FITUR DROPDOWN SELECT2 UNTUK PELANGGAN
+            // ====================================================
+            $('#namaPelanggan').select2({
+                placeholder: 'Ketik atau pilih pelanggan...',
+                tags: true, // bisa input pelanggan baru
+                allowClear: true,
+                width: '100%'
+            });
 
-            document.getElementById('noTelp').value = noTelp;
-            document.getElementById('alamatPelanggan').value = alamat;
-            document.getElementById('checkoutNoTelp').value = noTelp; // simpan ke hidden input
-        });
+            // Autofill data pelanggan dari option yang dipilih
+            $('#namaPelanggan').on('change', function () {
+                const selected = $(this).find(':selected');
+                const telp = selected.data('telp') || '';
+                const alamat = selected.data('alamat') || '';
+                $('#noTelp').val(telp);
+                $('#alamatPelanggan').val(alamat);
+            });
 
-        // Tambah barang via AJAX
-        document.getElementById('formAddItem').addEventListener('submit', function (e) {
-            e.preventDefault();
+            // Kirim data pelanggan saat checkout (pelanggan baru juga ikut tersimpan)
+            $('#checkoutForm').on('submit', function () {
+                $('#checkoutNama').val($('#namaPelanggan').val());
+                $('#checkoutTelp').val($('#noTelp').val());
+                $('#checkoutAlamat').val($('#alamatPelanggan').val());
+            });
 
-            let form = e.target;
-            let formData = new FormData(form);
+            // ====================================================
+            // 🔹 FITUR TAMBAH BARANG DENGAN AJAX + SWEETALERT2
+            // ====================================================
+            const formAddItem = document.getElementById('formAddItem');
 
-            fetch(form.action, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value,
-                    "Accept": "application/json"
-                },
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        let emptyRow = document.getElementById('emptyRow');
+            formAddItem.addEventListener('submit', function (e) {
+                e.preventDefault(); // Cegah reload halaman
+
+                const formData = new FormData(formAddItem);
+
+                fetch(formAddItem.action, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value,
+                        "Accept": "application/json"
+                    },
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        // Jika gagal (stok habis, tidak cukup, dsb)
+                        if (!data.success) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Gagal Menambah Barang',
+                                text: data.message || 'Stok barang tidak mencukupi!',
+                                confirmButtonColor: '#d33'
+                            });
+                            return;
+                        }
+
+                        // Jika sukses
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Barang berhasil ditambahkan!',
+                            showConfirmButton: false,
+                            timer: 1200
+                        });
+
+                        // Hapus baris kosong jika ada
+                        const emptyRow = document.getElementById('emptyRow');
                         if (emptyRow) emptyRow.remove();
 
-                        let row = `
+                        // Tambahkan baris baru ke tabel transaksi
+                        const row = `
                         <tr>
                             <td>${data.barang}</td>
                             <td>${data.deskripsi ?? '-'}</td>
@@ -195,23 +249,36 @@
                     `;
                         document.querySelector('#listBarang').insertAdjacentHTML('beforeend', row);
 
+                        // Update total keseluruhan
                         document.getElementById('grandTotal').innerText =
                             'Total: Rp ' + parseInt(data.grandTotal).toLocaleString('id-ID');
 
-                        // ✅ Aktifkan tombol checkout
+                        // Aktifkan tombol checkout
                         document.querySelector('#checkoutForm button[type=submit]').disabled = false;
 
-                        form.reset();
-                    } else {
-                        alert("Gagal menambah barang!");
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Terjadi error pada server.");
-                });
+                        // Reset form input barang
+                        formAddItem.reset();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Kesalahan Server',
+                            text: 'Terjadi kesalahan pada server. Silakan coba lagi.',
+                            confirmButtonColor: '#d33'
+                        });
+                    });
+            });
+
+            // ====================================================
+            // 🔹 CEGAH ENTER SUBMIT FORM (AGAR FETCH TIDAK SKIP)
+            // ====================================================
+            $('#Jumlah').on('keydown', function (e) {
+                if (e.key === 'Enter') e.preventDefault();
+            });
         });
     </script>
+
 
 </body>
 

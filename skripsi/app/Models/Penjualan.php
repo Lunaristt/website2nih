@@ -31,11 +31,9 @@ class Penjualan extends Model
         return $this->hasMany(\App\Models\BarangPenjualan::class, 'ID_Penjualan', 'ID_Penjualan');
     }
 
-    /**
-     * Relasi ke Pelanggan (1 pelanggan bisa punya banyak penjualan)
-     */
-    // public function pelanggan()
-    // {
-    //     return $this->belongsTo(Pelanggan::class, 'No_TelpPelanggan', 'No_Telp');
-    // }
+    public function pelanggan()
+    {
+        // Relasi: satu penjualan dimiliki oleh satu pelanggan
+        return $this->belongsTo(\App\Models\Pelanggan::class, 'No_Telp', 'No_Telp');
+    }
 }

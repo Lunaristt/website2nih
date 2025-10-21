@@ -6,6 +6,8 @@ use App\Models\Barang;
 use App\Models\kategoribarang;
 use App\Models\satuanbarang;
 use Illuminate\Http\Request;
+use App\Imports\BarangImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BarangController extends Controller
 {
@@ -28,7 +30,7 @@ class BarangController extends Controller
         $kategoribarang = kategoribarang::all();
         $satuanbarang = satuanbarang::all();
 
-        return view('barang', compact('barang', 'kategoribarang', 'satuanbarang'));
+        return view('barang/barang', compact('barang', 'kategoribarang', 'satuanbarang'));
     }
 
     /**
@@ -38,7 +40,7 @@ class BarangController extends Controller
     {
         $satuanbarang = satuanbarang::all();
         $kategoribarang = kategoribarang::all();
-        return view('tambahbarang', compact('kategoribarang', 'satuanbarang'));
+        return view('barang/tambahbarang', compact('kategoribarang', 'satuanbarang'));
     }
 
     /**
@@ -46,6 +48,11 @@ class BarangController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->hasFile('file_excel')) {
+            Excel::import(new BarangImport, $request->file('file_excel'));
+            return redirect()->route('barang.index')->with('success', 'Data barang berhasil diimpor dari Excel!');
+        }
+
         $request->validate([
             'Nama_Barang' => 'required|string|max:100',
             'Merek_Barang' => 'required|string|max:100',
@@ -80,7 +87,7 @@ class BarangController extends Controller
         $kategoribarang = kategoribarang::all();
         $satuanbarang = satuanbarang::all();
 
-        return view('editbarang', compact('barang', 'kategoribarang', 'satuanbarang'));
+        return view('barang/editbarang', compact('barang', 'kategoribarang', 'satuanbarang'));
     }
 
     /**
@@ -171,5 +178,17 @@ class BarangController extends Controller
         ]);
 
         return redirect()->route('tambahsatuan')->with('success', 'Satuan baru berhasil ditambahkan!');
+    }
+
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new BarangImport, $request->file('file'));
+
+        return redirect()->back()->with('success', 'Data barang berhasil diimport!');
     }
 }

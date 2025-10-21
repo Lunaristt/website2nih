@@ -123,40 +123,48 @@ class TransaksiController extends Controller
             return redirect()->back()->with('error', 'Tidak bisa menyelesaikan transaksi tanpa barang!');
         }
 
-        if (!$request->No_Telp) {
-            return redirect()->back()->with('error', 'Pelanggan harus dipilih!');
+        if (!$request->Nama_Pelanggan || !$request->No_Telp) {
+            return redirect()->back()->with('error', 'Nama dan Nomor Telepon pelanggan wajib diisi!');
         }
 
         DB::beginTransaction();
         try {
-            $details = BarangPenjualan::where('ID_Penjualan', $penjualanId)->get();
+            // 🔍 Cek apakah pelanggan sudah ada
+            $pelanggan = Pelanggan::where('No_Telp', $request->No_Telp)
+                ->orWhere('Nama_Pelanggan', $request->Nama_Pelanggan)
+                ->first();
 
-            // Kurangi stok barang sesuai jumlah terjual
-            foreach ($details as $item) {
-                $barang = Barang::findOrFail($item->ID_Barang);
-
-                if ($barang->Stok_Barang < $item->Jumlah) {
-                    DB::rollBack();
-                    return redirect()->back()->with('error', 'Stok ' . $barang->Nama_Barang . ' tidak mencukupi!');
-                }
-
-                $barang->Stok_Barang -= $item->Jumlah;
-                $barang->save();
+            if (!$pelanggan) {
+                // 🧾 Jika belum ada → buat pelanggan baru otomatis
+                $pelanggan = Pelanggan::create([
+                    'Nama_Pelanggan' => $request->Nama_Pelanggan,
+                    'No_Telp' => $request->No_Telp,
+                    'Alamat' => $request->Alamat ?? '-',
+                ]);
             }
 
-            // Update status penjualan ke "Selesai"
+            // Update status transaksi
             Penjualan::where('ID_Penjualan', $penjualanId)->update([
-                'No_Telp' => $request->No_Telp,
+                'No_Telp' => $pelanggan->No_Telp,
                 'Status' => 'Selesai',
                 'Tanggal' => now(),
             ]);
 
-            DB::commit();
+            // Kurangi stok barang
+            $details = BarangPenjualan::where('ID_Penjualan', $penjualanId)->get();
+            foreach ($details as $item) {
+                $barang = Barang::findOrFail($item->ID_Barang);
+                if ($barang->Stok_Barang < $item->Jumlah) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', 'Stok ' . $barang->Nama_Barang . ' tidak mencukupi!');
+                }
+                $barang->decrement('Stok_Barang', $item->Jumlah);
+            }
 
-            // Hapus session transaksi
+            DB::commit();
             session()->forget('penjualan_id');
 
-            return redirect()->route('transaksi.create')->with('success', 'Transaksi selesai dan stok telah diperbarui!');
+            return redirect()->route('transaksi.create')->with('success', 'Transaksi selesai dan pelanggan tersimpan!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

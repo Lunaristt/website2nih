@@ -10,7 +10,7 @@ class PelangganController extends Controller
     public function index()
     {
         $pelanggan = pelanggan::all();
-        return view('listpelanggan', compact('pelanggan'));
+        return view('pelanggan/listpelanggan', compact('pelanggan'));
     }
 
     public function create()
@@ -35,6 +35,25 @@ class PelangganController extends Controller
     {
         $pelanggan = Pelanggan::where('Nama_Pelanggan', $request->nama)->first();
         return response()->json(['no_telp' => $pelanggan ? $pelanggan->No_Telp : null]);
+    }
+    public function edit($id)
+    {
+        $pelanggan = Pelanggan::findOrFail($id);
+        return view('pelanggan/editpelanggan', compact('pelanggan'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'Nama_Pelanggan' => 'required|string|max:100',
+            'NoTelp_Pelanggan' => 'required|string|max:20',
+            'Alamat_Pelanggan' => 'required|string',
+        ]);
+
+        $pelanggan = Pelanggan::findOrFail($id);
+        $pelanggan->update($request->all());
+
+        return redirect()->route('pelanggan.index')->with('success', 'Data pelanggan berhasil diperbarui!');
     }
 
 }

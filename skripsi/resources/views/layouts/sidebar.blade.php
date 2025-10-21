@@ -3,13 +3,13 @@
         <!-- Sidebar -->
         <div class="col-md-2 sidebar">
             <nav class="nav flex-column">
-                <a class="nav-link fw-bold text-white {{ request()->is('barang') ? 'active' : '' }}"
+                <a class="nav-link fw-bold text-white {{ request()->is('barang/barang') ? 'active' : '' }}"
                     href="{{ route('barang.index') }}">
                     Lihat Stok Barang
                 </a>
 
                 {{-- Default Tambah Barang Baru --}}
-                <a class="nav-link fw-bold text-white {{ request()->is('tambahbarang*') ? 'active' : '' }}"
+                <a class="nav-link fw-bold text-white {{ request()->is('barang/tambahbarang*') ? 'active' : '' }}"
                     href="{{ route('tambahbarang.create') }}">
                     Tambah Barang Baru
                 </a>
@@ -49,18 +49,46 @@
                         📂 Status Transaksi
                     </a>
                 </div>
-                <a class="nav-link fw-bold text-white {{ request()->is('PesananBarang') ? 'active' : '' }}" href="#">
+                <a class="nav-link fw-bold text-white {{ request()->is('pembelian') ? 'active' : '' }}"
+                    href="{{ route('pembelian') }}">
                     Buat Pembelian
                 </a>
 
-                <a class="nav-link fw-bold text-white {{ request()->is('penjualan') ? 'active' : '' }}"
-                    href="{{ route('penjualan') }}">
-                    Laporan Penjualan
+                {{-- ✅ Dropdown Laporan --}}
+                <div class="dropdown-container mt-2">
+                    <button class="btn btn-danger w-100 text-start fw-bold text-white border-0 dropdown-toggle"
+                        type="button" id="laporanDropdown">
+                        📊 Laporan
+                    </button>
+                    <div id="laporanMenu" class="dropdown-anim mt-1">
+                        <a class="nav-link text-white ps-4 py-1 {{ request()->is('laporan/pengeluaran') ? 'active' : '' }}"
+                            href="#">📉 Laporan Pengeluaran</a>
+                        <a class="nav-link text-white ps-4 py-1 {{ request()->is('laporan/pemasukan') ? 'active' : '' }}"
+                            href="laporan/pemasukan">📈 Laporan Pemasukan</a>
+                    </div>
+                </div>
+
+                <a class="nav-link fw-bold text-white {{ request()->is('tambahdistributor') ? 'active' : '' }}"
+                    href="{{ route('tambahdistributor') }}">
+                    Tambah Distributor
                 </a>
 
-                <a class="nav-link fw-bold text-white {{ request()->is('pajak') ? 'active' : '' }}" href="#">
-                    Pajak
+                <a class="nav-link fw-bold text-white {{ request()->is('pajak') ? 'active' : '' }}" href="pajak">
+                    Faktur Pajak
                 </a>
 
             </nav>
         </div>
+
+        <script>
+            // Animasi toggle dropdown laporan
+            document.addEventListener('DOMContentLoaded', function () {
+                const toggle = document.getElementById('laporanDropdown');
+                const menu = document.getElementById('laporanMenu');
+
+                toggle.addEventListener('click', function () {
+                    menu.classList.toggle('show');
+                    toggle.classList.toggle('active');
+                });
+            });
+        </script>

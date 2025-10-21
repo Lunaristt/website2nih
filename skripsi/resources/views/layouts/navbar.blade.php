@@ -9,7 +9,7 @@
                 {{ $authUser->Nama ?? 'Pengguna' }} 👤
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                @if(isset($authUser) && $authUser->Role === 'admin')
+                @if(isset($authUser) && $authUser->Role === 'Admin')
                     <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
                     <li>
                         <hr class="dropdown-divider">

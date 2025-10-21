@@ -22,6 +22,6 @@ class BarangPenjualan extends Pivot
 
     public function penjualan()
     {
-        return $this->belongsTo(\App\Models\Penjualan::class, 'ID_Penjualan', 'ID_Penjualan');
+        return $this->belongsTo(Penjualan::class, 'ID_Penjualan', 'ID_Penjualan');
     }
 }
